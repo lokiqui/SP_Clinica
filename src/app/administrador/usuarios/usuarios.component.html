@@ -1,0 +1,187 @@
+<div
+    class="contenedor-menor mb-5 fondo-oscuro"
+>
+    <div class="container-fluid">
+        <table class="table text-white" style="text-align: center;" id="usuarios-excel">
+            <thead>
+                <tr>
+                    <th>Rol</th>
+                    <th>Email</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Edad</th>
+                    <th>DNI</th>
+                    <th>Obra Social</th>
+                    <th>Especialidades</th>
+                    <th>Habilitado</th>
+                    <th>Historia clínica</th>
+                    <!-- <th>Opciones</th> -->
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of docsUsuario">
+                    <td>{{item.usuario.rol}}</td>
+                    <td>{{item.usuario.email}}</td>
+                    <td>{{item.usuario.nombre}}</td>
+                    <td>{{item.usuario.apellido}}</td>
+                    <td>{{item.usuario.edad}}</td>
+                    <td>{{item.usuario.dni}}</td>
+                    <td *ngIf="item.usuario.obraSocial">
+                        {{item.usuario.obraSocial}}
+                    </td>
+                    <td *ngIf="!item.usuario.obraSocial">
+                        n/a
+                    </td>
+                    <td *ngIf="item.usuario.especialidades">
+                        <span *ngFor="let especialidad of item.usuario.especialidades">
+                            {{especialidad}}
+                            <br>
+                        </span>
+                    </td>
+                    <td *ngIf="!item.usuario.especialidades">
+                        n/a
+                    </td>
+                    <td *ngIf="item.usuario.especialidades">
+                        <div class="form-check form-switch d-flex justify-content-center">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                [value]="item.id"
+                                (change)="onChangeHabilitado($event)"
+                                [checked]="item.usuario.habilitado"
+                            >
+                        </div>
+                    </td>
+                    <td *ngIf="!item.usuario.especialidades">
+                        n/a
+                    </td>
+                    <td *ngIf="item.usuario.rol !== 'paciente'">
+                        n/a
+                    </td>
+                    <td *ngIf="item.usuario.rol === 'paciente'">
+                        <button
+                        *ngIf="!verHistoriaClinica"
+                        class="btn btn-primary m-auto"
+                        (click)="verHistoriaClinicaHandler(item.usuario)"
+                        >
+                        Ver</button>
+                    </td>
+                    <!-- <td>
+                        <button
+                            class="btn btn-danger m-auto"
+                            (click)="eliminarUsuarioHandler(item)"
+                        >
+                        Eliminar</button>
+                    </td> -->
+                </tr>
+            </tbody>
+        </table>
+        <div class="text-center my-5">
+            <button
+                class="btn btn-light"
+                (click)="exportarExcel('usuarios-excel', 'usuarios')"
+            >Descargar usuarios</button>
+        </div>
+        <app-favbutton-usuarios
+            [docsUsuario]="this.docsUsuario"
+            (usuarioSeleccionado)="this.usuarioSeleccionadoHandler($event)"
+        >
+        </app-favbutton-usuarios>
+        <div class="d-flex justify-content-center">
+            <button
+                *ngIf="!quieroAgregarUsuario"
+                class="btn btn-success"
+                (click)="agregarUsuario()"
+            >Agregar usuario</button>
+            <button
+                *ngIf="quieroAgregarUsuario"
+                class="btn btn-danger"
+                (click)="noAgregarUsuario()"
+            >Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<div class="contenedor-menor mb-5 fondo-oscuro" *ngIf="this.verTurnos">
+    <div class="container-fluid">
+        <table id="turnos-excel">
+            <tr>
+                <th>Horario</th>
+                <th>Especialista</th>
+                <th>Paciente</th>
+                <th>Especialidad</th>
+                <th>Estado</th>
+                <th>Motivo</th>
+            </tr>
+            <tr *ngFor="let turno of turnos; let i = index">
+                <td>{{turno.fecha.toDate() | date:'MM/dd HH:mm'}}</td>
+                <td>
+                    {{turno.especialista | doctor}}
+                </td>
+                <td>
+                    {{turno.paciente.nombre}}
+                    {{turno.paciente.apellido}}
+                </td>
+                <td>{{turno.especialidad}}</td>
+                <td>{{turno.estado | uppercase}}</td>
+                <td class="tdMotivo">{{turno.razon}}</td>
+            </tr>
+        </table>
+        <div class="text-center my-5">
+            <button
+                class="btn btn-light"
+                (click)="exportarExcel('turnos-excel', 'turnos')"
+            >Descargar turnos</button>
+        </div>
+    </div>
+</div>
+
+
+<app-historia-clinica
+    class="contenedor-menor mb-5 fondo-oscuro"
+    *ngIf="verHistoriaClinica"
+    [paciente]="pacienteSeleccionado"
+    (volver)="ocultarHandler()"
+>
+</app-historia-clinica>
+
+<div
+    class="d-flex justify-content-center align-items-center"
+>
+    <div
+        *ngIf="quieroAgregarUsuario"
+        class="text-white mb-5 fondo-oscuro"
+    >
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark rounded-3">
+            <div class="container-fluid navbar-nav">
+                <a
+                    class="nav-link m-auto"
+                    (click)="clickPacienteHandler()"
+                    [ngClass]="{'active': this.rolSeleccionado === 'paciente'}"
+                >Paciente</a>
+                <a
+                    class="nav-link m-auto"
+                    (click)="clickEspecialistaHandler()"
+                    [ngClass]="{'active': this.rolSeleccionado === 'especialista'}"
+                >Especialista</a>
+                <a
+                    class="nav-link m-auto"
+                    (click)="clickAdministradorHandler()"
+                    [ngClass]="{'active': this.rolSeleccionado === 'administrador'}"
+                >Administrador</a>
+            </div>
+        </nav>
+        <div style="width: 30rem; padding: 2rem 3rem" *ngIf="this.rolSeleccionado === 'paciente'">
+            <app-registro-paciente (formularioEnviado)="pacienteEnviadoHandler($event)" [error]="errorMsg">            
+            </app-registro-paciente>
+        </div>
+        <div style="width: 30rem; padding: 1rem 3rem" *ngIf="this.rolSeleccionado === 'especialista'">
+            <app-registro-especialista (formularioEnviado)="especialistaEnviadoHandler($event)" [error]="errorMsg">            
+            </app-registro-especialista>
+        </div>
+        <div style="width: 30rem; padding: 2rem 3rem" *ngIf="this.rolSeleccionado === 'administrador'">
+            <app-registro-administrador (formularioEnviado)="administradorEnviadoHandler($event)" [error]="errorMsg">            
+            </app-registro-administrador>
+        </div>
+    </div>
+</div>

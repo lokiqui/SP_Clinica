@@ -1,0 +1,47 @@
+<div
+    id="bienvenida-contenedor" 
+    class="d-flex justify-content-center align-items-center"
+>
+    <div
+        class="text-white m-5 fondo-oscuro"
+    >
+        <div *ngIf="!this.elegi"  class="d-flex flex-column align-items-center">
+            <h1 class="m-3">Registro</h1>
+            <img
+                src="../../assets/examination.png"
+                (click)="clickPacienteHandler()"
+                style="height: 15rem; width: 15rem; margin: 2rem; cursor:pointer;"
+            >
+            <img
+                src="../../assets/doctor.png"
+                (click)="clickEspecialistaHandler()"
+                style="height: 15rem; width: 15rem; margin: 2rem; cursor:pointer;"
+            >
+        </div>
+        <div *ngIf="this.elegi">
+            <div style="width: 30rem; padding: 2rem 3rem" *ngIf="this.esPaciente">
+                <app-registro-paciente
+                    (formularioEnviado)="pacienteEnviadoHandler($event)"
+                    [error]="errorMsg"
+                    [isLoading]="isLoading"
+                >
+                </app-registro-paciente>
+            </div>
+            <div style="width: 30rem; padding: 1rem 3rem" *ngIf="!this.esPaciente">
+                <app-registro-especialista
+                    (formularioEnviado)="especialistaEnviadoHandler($event)"
+                    [error]="errorMsg"
+                    [isLoading]="isLoading"
+                >                
+                </app-registro-especialista>
+            </div>
+            <button class="btn btn-danger d-block mx-auto mt-3 mb-5" (click)="clickCancelarHandler()">Cancelar</button>
+        </div>
+        <button
+            *ngIf="!this.elegi"
+            class="btn btn-danger d-block mx-auto mb-4"
+            (click)="clickVolverHandler()"
+        >Volver</button>
+    </div>
+</div>
+        
